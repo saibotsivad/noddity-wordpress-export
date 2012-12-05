@@ -1,6 +1,7 @@
 var fs = require('fs')
 var xml2js = require('xml2js')
 var parser = new xml2js.Parser()
+var toMarkdown = require('to-markdown').toMarkdown
 
 var settings = {
 	fileName: 'C:/Users/Tobias/Downloads/tobiasdavis.wordpress.2012-11-25.xml',
@@ -27,7 +28,7 @@ var parseChannel = function(channel) {
 	blog.description = channel.description
 	blog.language = channel.language
 
-	// set authors
+	// parse authors
 	var wp_authors = channel['wp:author']
 	var authors = []
 	for (var i = 0; i < wp_authors.length; i++) {
@@ -47,7 +48,16 @@ var parseChannel = function(channel) {
 	var posts = []
 	for (var i = 0; i < channel.item.length; i++) {
 		console.log('Parsing post ' + (i + 1) + ' of ' + channel.item.length)
-		posts.push(parsePost(channel.item[i]))
+		var post = parsePost(channel.item[i])
+
+		// set author from authors
+		for (var j = 0; j < blog.authors.length; j++) {
+			if (blog.authors[j].login === post.author) {
+				post.author = blog.authors[j]
+			}
+		}
+
+		posts.push(post)
 	}
 	blog.posts = posts
 
@@ -59,10 +69,11 @@ var parsePost = function(wp_post) {
 	var post = {}
 	post.title = wp_post.title[0]
 	post.link = wp_post.link[0] // strip domain
-	post.published_date = wp_post['wp:post_date_gmt'][0] // convert to JS date
-	post.author = wp_post['dc:creator'][0] // grab from the blog.authors list
+	post.published_date = new Date(wp_post['wp:post_date_gmt'][0])
+	post.author = wp_post['dc:creator'][0]
 	post.permalink = wp_post.guid[0]._
 	post.content = (typeof wp_post['content:encoded'][0] === 'object' ? null : wp_post['content:encoded'][0])
+	post.markdown = (post.content === null ? null : toMarkdown(post.content))
 	post.excerpt = (typeof wp_post['excerpt:encoded'][0] === 'object' ? null : wp_post['excerpt:encoded'][0])
 	post.id = Number(wp_post['wp:post_id'][0])
 	post.allow_comments = (wp_post['wp:comment_status'][0] === 'open' ? true : false)
@@ -94,6 +105,7 @@ var parsePost = function(wp_post) {
 
 var createFiles = function(blog) {
 	for (var i = 0; i < blog.posts.length; i++) {
-		console.log(blog.posts[i].title)
-	};
+		var post_string = "here is where you would assemble the metadata and the markdown, according to the metadata-parser, hopefully by some template"
+		console.log(blog.posts[i].author)
+	}
 }
