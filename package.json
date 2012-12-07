@@ -6,7 +6,7 @@
 	"keywords": ["wordpress", "markdown", "export"],
 	"repository": { "type": "git", "url": "https://github.com/saibotsivad/wordpress-export.git" },
 	"dependencies": {
-		"xml2js" : "0.2.3",
+		"xml2js" : "0.2.2",
 		"fs" : "0.0.0",
 		"to-markdown" : "0.0.1"
 	}

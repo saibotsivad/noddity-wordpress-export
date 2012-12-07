@@ -3,8 +3,10 @@ var xml2js = require('xml2js')
 var parser = new xml2js.Parser()
 var toMarkdown = require('to-markdown').toMarkdown
 
+var postFilter = require('./wordpress-export-output.js')
+
 var settings = {
-	fileName: 'C:/Users/Tobias/Downloads/tobiasdavis.wordpress.2012-11-25.xml',
+	fileName: 'C:/Users/Tobias/Downloads/tobiasdavis.wordpress.2012-12-07.xml',
 	fileEncoding: 'utf8'
 }
 
@@ -12,7 +14,7 @@ fs.readFile(settings.fileName, settings.fileEncoding, function (err, data) {
 	if (!err) {
 		parser.parseString(data, function (err, result) {
 			createFiles(parseChannel(result.rss.channel[0]))
-			console.log('Done')
+			console.log('...Done!')
 		})
 	} else {
 		console.log('Error reading file')
@@ -57,7 +59,7 @@ var parseChannel = function(channel) {
 			}
 		}
 
-		posts.push(post)
+		posts.push(postFormatter(post))
 	}
 	blog.posts = posts
 
@@ -103,9 +105,129 @@ var parsePost = function(wp_post) {
 	return post
 }
 
+var postFormatter = function(post) {
+	// before the user muddles with things, let's make the folder hierarchy
+	var folder_hierarchy = {}
+	var media_folder_hierarchy = {}
+
+	// run the user definable filter
+	postFilter(post)
+
+	var finalPost = {}
+
+	// delete these objects in the wordpress-export-output.js file to make them not exist here
+	if (undefined !== post.title) {
+		finalPost.title = post.title
+	}
+	if (undefined !== post.link) {
+		finalPost.link = post.link
+	}
+	if (undefined !== post.permalink) {
+		finalPost.permalink = post.permalink
+	}
+	if (undefined !== post.markdown) {
+		finalPost.content = post.markdown
+	}
+	if (undefined !== post.excerpt) {
+		finalPost.excerpt = post.excerpt
+	}
+	if (undefined !== post.id) {
+		finalPost.id = post.id
+	}
+	if (undefined !== post.allow_comments) {
+		finalPost.allow_comments = post.allow_comments
+	}
+	if (undefined !== post.allow_pings) {
+		finalPost.allow_pings = post.allow_pings
+	}
+	if (undefined !== post.slug) {
+		finalPost.slug = post.slug
+	}
+	if (undefined !== post.is_published) {
+		finalPost.is_published = post.is_published
+	}
+	if (undefined !== post.is_post) {
+		finalPost.is_post = post.is_post
+	}
+
+	// you can change the way the date is stored, but it should be parsable by the Date function
+	if (undefined === post.published_date_string && undefined !== post.published_date) {
+		finalPost.date = post.published_date // TODO: format date to reasonable default
+	} else {
+		finalPost.date = published_date_string
+	}
+
+	// categories by comma separated on url safe name, e.g. "things_i_say, other"
+	if (undefined === post.categories_string && undefined !== post.categories) {
+		var categories = ""
+		for (var i = 0; i < post.categories.length; i++) {
+			categories = categories + (categories.length > 0 ? ", " : "") + post.categories[i].url_safe
+		}
+		finalPost.categories = categories
+	} else if (undefined !== post.categories_string) {
+		finalPost.categories = post.categories_string
+	}
+
+	// tags the same as categories
+	if (undefined === post.tags_string && undefined !== post.tags) {
+		var tags = ""
+		for (var i = 0; i < post.tags.length; i++) {
+			tags = tags + (tags.length > 0 ? ", " : "") + post.tags[i].url_safe
+		}
+		finalPost.tags = tags
+	} else if (undefined !== post.tags_string) {
+		finalPost.tags = post.tags_string
+	}
+
+	// default author is in the pretty-name format, e.g. "John Doe"
+	if (undefined === post.author_string && undefined !== post.author) {
+		if (post.author.first_name === null || post.author.last_name === null) {
+			finalPost.author = post.author.display_name
+		} else {
+			finalPost.author = post.author.first_name + " " + post.author.last_name
+		}
+	} else if (undefined !== post.author_string) {
+		finalPost.author = post.author_string
+	}
+
+	// default markdown file hierarchy
+	if (undefined === post.folder_hierarchy) {
+		finalPost.folder_hierarchy = folder_hierarchy
+	} else {
+		finalPost.folder_hierarchy = post.folder_hierarchy
+	}
+
+	// default to not download all media
+	if (undefined === post.download_media) {
+		finalPost.download_media = false
+	} else {
+		finalPost.download_media = post.download_media
+	}
+
+	// but if we *are* going to download it, we'll default to storing it here
+	if (undefined === post.media_folder_hierarchy) {
+		finalPost.media_folder_hierarchy = media_folder_hierarchy
+	} else {
+		finalPost.media_folder_hierarchy = post.media_folder_hierarchy
+	}
+
+	return finalPost
+}
+
 var createFiles = function(blog) {
 	for (var i = 0; i < blog.posts.length; i++) {
-		var post_string = "see the wordpress-export-output.js file, you'll need to implement it somehow"
-		console.log(blog.posts[i].author)
+		var post = blog.posts[i]
+		var postKeys = Object.keys(post)
+		var postString = ""
+		for (var partIndex = 0; partIndex < postKeys.length; partIndex++) {
+			if (postKeys[partIndex] === 'content') {
+				continue
+			}
+			postString = postString + postKeys[partIndex] + ": " + post[postKeys[partIndex]] + "\r\n"
+			console.log(postString)
+		}
+		// console.log(blog.posts[i])
+		// TODO: you'll want to take the metadata parser and modify it to take in an object
+		// and spit out a markdown file (string, anyway, not the actual file)
 	}
 }

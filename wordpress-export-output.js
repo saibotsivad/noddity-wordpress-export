@@ -73,55 +73,42 @@
 
 */
 
-var markdownTemplate = function(post) {
-	// manually set categories
-	var categories = ""
-	for (var i = 0; i < post.categories.length; i++) {
-		categories = categories + ", " + post.categories[i].print_name
-	}
-	post.categories_string = categories
+function PostFilter(post) {
+	
+	// the following are the defaults, feel free to change them however you desire
 
-	// manually set author
-	post.author_string = ()
+	// NOTE: When you've made sure all the files are where you want them, go
+	// ahead and uncomment this line, that way you can download all the media
+	// files that are linked to in the post.
 
-	// delete tags
-	delete post.tags
+	// post.download_media = true
+
+	// include none of these
 	delete post.link
-	delete post.allow_comments
+	delete post.permalink
+	delete post.id
 	delete post.allow_pings
+	delete post.allow_comments
+	delete post.slug
+	delete post.tags
 
-	var	post = {
-		title : String,
-		link : String,
-		published_date : Date,
-		permalink : String,
-		content : String || null,
-		markdown : String || null,
-		excerpt : String || null,
-		id : Number,
-		allow_comments : boolean,
-		allow_pings : boolean,
-		slug : String,
-		is_published : boolean,
-		is_post : boolean,
-		author : {
-			id : Number,
-			login : String,
-			email : String,
-			display_name : String,
-			first_name : String || null,
-			last_name : String || null
-		},
-		categories : [{
-			url_safe : String,
-			print_name : String
-		}],
-		tags : [{
-			url_safe : String,
-			print_name : String
-		}]
+	// include these if they are false
+	if (post.is_published) {
+		delete post.is_published
+	}
+	if (post.is_post) {
+		delete post.is_post
 	}
 
+	// include this if it exists
+	if (null === post.excerpt) {
+		delete post.excerpt
+	}
+
+	// for single author blogs, this is probably okay:
+	delete post.author
 
 	return post
 }
+
+module.exports = function(x) { return new PostFilter(x) }
