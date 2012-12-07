@@ -79,7 +79,7 @@ var parsePost = function(wp_post) {
 	post.allow_comments = (wp_post['wp:comment_status'][0] === 'open' ? true : false)
 	post.allow_pings = (wp_post['wp:ping_status'][0] === 'open' ? true : false)
 	post.slug = wp_post['wp:post_name'][0]
-	post.published = (wp_post['wp:status'][0] === 'publish' ? true : false)
+	post.is_published = (wp_post['wp:status'][0] === 'publish' ? true : false)
 	post.is_post = (wp_post['wp:post_type'][0] === 'post' ? true : false)
 
 	// categories and tags are like [{url_safe, print_name}]
@@ -105,7 +105,7 @@ var parsePost = function(wp_post) {
 
 var createFiles = function(blog) {
 	for (var i = 0; i < blog.posts.length; i++) {
-		var post_string = "here is where you would assemble the metadata and the markdown, according to the metadata-parser, hopefully by some template"
+		var post_string = "see the wordpress-export-output.js file, you'll need to implement it somehow"
 		console.log(blog.posts[i].author)
 	}
 }
