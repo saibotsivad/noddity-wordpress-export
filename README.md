@@ -12,3 +12,12 @@ Steps to success:
 5. Look in the file `output.zip` for your Markdown files and media files
 
 Now you can use something like [Noddity](http://noddity.com) to run your blog!
+
+Alternate install
+-----------------
+
+Instead of step 3 above, since this isn't on npm yet, install using
+
+	`npm install https://github.com/saibotsivad/noddity-wordpress-export/archive/master.tar.gz`
+
+You'll have to `cd node_modules/noddity-wordpress-export` and then continue with the rest of the steps.
