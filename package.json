@@ -1,6 +1,6 @@
 {
 	"name": "wordpress-export",
-	"version": "0.0.2",
+	"version": "0.1.0",
 	"main": "./wordpress-export.js",
 	"author": { "name": "Tobias Davis", "email": "public@davistobias.com", "url": "http://tobiaslabs.com" },
 	"keywords": ["wordpress", "markdown", "export"],
@@ -8,6 +8,8 @@
 	"dependencies": {
 		"xml2js" : "0.2.2",
 		"fs" : "0.0.0",
-		"to-markdown" : "0.0.1"
+		"to-markdown" : "0.0.1",
+		"underscore" : "1.4.3",
+		"node-zip" : "0.0.2"
 	}
 }
