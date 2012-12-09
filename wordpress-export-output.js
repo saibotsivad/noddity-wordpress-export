@@ -53,10 +53,16 @@
 		}]
 	}
 
-	Change the default folder hierarchy by adding the property:
+	Change the default folder location by adding the property:
 
 	var post = {
-		folder_hierarchy : XXXXXXXX
+		folder : String // e.g., "2012/01", forward slashes required, no trailing slash
+	}
+
+	Change the default file name by adding the property:
+
+	var post = {
+		fileName : String // e.g., "file_name.md", file extension required
 	}
 
 	Change whether to download the linked photos/media in a post by toggling:
