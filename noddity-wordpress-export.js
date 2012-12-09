@@ -116,7 +116,7 @@ var postFormatter = function(post) {
 	var folder = (isNaN(post.published_date.valueOf())
 		? "unpublished/"
 		: (post.is_post ? "posts/" : "pages/") + date.getUTCFullYear() + "/" + pad(date.getUTCMonth() + 1) + "/")
-	var fileName = (typeof post.slug !== 'String' ? post.id : post.slug ) + ".md"
+	var fileName = (typeof post.slug !== 'string' ? post.id : post.slug ) + ".md"
 	var media_folder_hierarchy = {} // TODO figure this out, I reckon
 
 	// run the user definable filter
