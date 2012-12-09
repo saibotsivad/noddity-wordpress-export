@@ -1,10 +1,10 @@
 {
-	"name": "wordpress-export",
+	"name": "noddity-wordpress-export",
 	"version": "0.1.0",
-	"main": "./wordpress-export.js",
+	"main": "./noddity-wordpress-export.js",
 	"author": { "name": "Tobias Davis", "email": "public@davistobias.com", "url": "http://tobiaslabs.com" },
 	"keywords": ["wordpress", "markdown", "export"],
-	"repository": { "type": "git", "url": "https://github.com/saibotsivad/wordpress-export.git" },
+	"repository": { "type": "git", "url": "https://github.com/saibotsivad/noddity-wordpress-export.git" },
 	"dependencies": {
 		"xml2js" : "0.2.2",
 		"fs" : "0.0.0",

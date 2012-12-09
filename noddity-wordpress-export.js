@@ -4,7 +4,7 @@ var xml2js = require('xml2js')
 var parser = new xml2js.Parser()
 var toMarkdown = require('to-markdown').toMarkdown
 
-var postFilter = require('./wordpress-export-output.js')
+var postFilter = require('./post-filter.js')
 
 if (process.argv[2] === undefined) {
 	console.log("Usage: node [app] [xml file]")
