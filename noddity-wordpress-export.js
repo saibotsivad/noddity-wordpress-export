@@ -1,4 +1,5 @@
 var fs = require('fs')
+var request = require('request')
 var us = require('underscore')
 var xml2js = require('xml2js')
 var parser = new xml2js.Parser()
@@ -75,6 +76,7 @@ var parseChannel = function(channel) {
 var parsePost = function(wp_post) {
 	// singletons
 	var post = {}
+	post.wp_post = wp_post // preserved for filter, if needed
 	post.title = wp_post.title[0]
 	post.link = wp_post.link[0] // strip domain
 	post.published_date = new Date(wp_post['wp:post_date_gmt'][0])
@@ -89,7 +91,16 @@ var parsePost = function(wp_post) {
 	post.slug = wp_post['wp:post_name'][0]
 	post.is_published = (wp_post['wp:status'][0] === 'publish' ? true : false)
 	post.is_post = (wp_post['wp:post_type'][0] === 'post' ? true : false)
-
+	post.post_type = wp_post['wp:post_type'][0]
+	if (post.post_type === 'attachment') {
+		post.is_attachment = true
+		post.attachment_url = wp_post['wp:attachment_url'][0]
+		us.map(wp_post['wp:postmeta'], function(attachment) {
+			if (attachment['wp:meta_key'][0] === '_wp_attached_file') {
+				post.attachment_url_folder_file = attachment['wp:meta_value'][0]
+			}
+		})
+	}
 	// categories and tags are like [{url_safe, print_name}]
 	var categories = []
 	var tags = []
@@ -115,16 +126,25 @@ var postFormatter = function(post) {
 	var date = (isNaN(post.published_date.valueOf()) ? new Date() : post.published_date)
 	var folder = (isNaN(post.published_date.valueOf())
 		? "unpublished/"
-		: (post.is_post ? "posts/" : "pages/") + date.getUTCFullYear() + "/" + pad(date.getUTCMonth() + 1) + "/")
+		: post.post_type + "/" + date.getUTCFullYear() + "/" + pad(date.getUTCMonth() + 1) + "/")
 	var fileName = (typeof post.slug !== 'string' ? post.id : post.slug ) + ".md"
-	var media_folder_hierarchy = {} // TODO figure this out, I reckon
-
+	if (post.is_attachment) {
+		post.download_media = true
+		post.folder = 'attachment/'
+		post.fileName = post.attachment_url_folder_file
+	}
 	// run the user definable filter
 	postFilter(post)
 
 	var finalPost = {}
 
 	// delete these objects in the wordpress-export-output.js file to make them not exist here
+	if (undefined !== post.is_attachment && post.is_attachment === true) {
+		finalPost.is_attachment = true
+		finalPost.attachment_url = post.attachment_url
+		finalPost.folder = post.folder
+		finalPost.fileName = post.fileName
+	} 
 	if (undefined !== post.title) {
 		finalPost.title = post.title
 	}
@@ -179,6 +199,9 @@ var postFormatter = function(post) {
 	if (undefined !== post.is_post) {
 		finalPost.is_post = post.is_post
 	}
+	if (undefined !== post.is_attachment) {
+		finalPost.is_attachment = post.is_attachment
+	}
 
 	// categories by comma separated on url safe name, e.g. "things_i_say, other"
 	if (undefined === post.categories_string && undefined !== post.categories) {
@@ -217,7 +240,7 @@ var postFormatter = function(post) {
 	}
 
 	// default to not download all media
-	if (post.download_media) {
+	if (finalPost.download_media) {
 		// TODO: somehow we need to download the files, or something
 		//post.media_folder_hierarchy
 	}
@@ -229,20 +252,25 @@ var createFiles = function(blog) {
 	// why a zip file? because I said so
 	var zip = new require('node-zip')()
 	us.map(blog.posts, function(post) {
-		// create the string that goes into the file
-		// create the metadata text string
-		var text = ""
-		us.map(us.keys(post), function(key){
-			if (key !== 'content' && key !== 'folder' && key !== 'fileName') {
-				text = text + key + ": " + post[key] + "\n"
-			}
-		})
-		// using the text-metadata-parser requires an extra \n between the metadata and the content
-		text = text + "\n"
-		// content string
-		text = text + post.content
-
-		zip.file(post.folder + post.fileName, text)
+		if (post.is_attachment) {
+			console.log("Downloading: " + post.attachment_url)
+			console.log(request(post.attachment_url))
+			// zip.file(post.folder + post.fileName, request(post.attachment_url), {base64:true})
+		} else {
+			// create the string that goes into the file
+			// create the metadata text string
+			var content = ""
+			us.map(us.keys(post), function(key){
+				if (key !== 'content' && key !== 'folder' && key !== 'fileName') {
+					content = content + key + ": " + post[key] + "\n"
+				}
+			})
+			// using the text-metadata-parser requires an extra \n between the metadata and the content
+			content = content + "\n"
+			// content string
+			content = content + post.content
+			zip.file(post.folder + post.fileName, content)
+		}
 	})
 	
 	// output file

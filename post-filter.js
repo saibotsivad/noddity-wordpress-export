@@ -84,10 +84,10 @@ function PostFilter(post) {
 	// the following are the defaults, feel free to change them however you desire
 
 	// NOTE: When you've made sure all the files are where you want them, go
-	// ahead and uncomment this line, that way you can download all the media
+	// ahead and change this to true, that way you can download all the media
 	// files that are linked to in the post.
 
-	// post.download_media = true
+	post.download_media = false
 
 	// include none of these
 	delete post.link
