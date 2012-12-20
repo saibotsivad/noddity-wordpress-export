@@ -1,3 +1,67 @@
+// http://blogs.msdn.com/b/ie/archive/2011/09/11/asynchronous-programming-in-javascript-with-promises.aspx
+// https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/map
+// https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function/apply
+// https://gist.github.com/4334955
+
+var doAsyncThing = function(thing, cb) {
+  cb(thing + '!')
+}
+
+var finisher = function() {
+	console.log("ALL DONE!")
+}
+
+var things_to_work_on = ['what', 'what', 'in', 'the', 'butt']
+var things_done = 0
+
+things_to_work_on.forEach(function(thing) {
+	doAsyncThing(thing, function(result) {
+		console.log("I got back " + result)
+		things_done++
+		if (things_done === things_to_work_on.length) {
+			finisher()
+		}
+	})
+})
+
+
+// ======= another thing, better written but more complex
+
+// Imagine that this is somebody else's async tool that you're using
+var doAsyncThing = function(thing, cb) {
+	cb(thing + '!')
+}
+
+// So you have this utility function
+var callThisWhenTheThingsAreDone = function(callback, number_of_things_to_do) {
+	var things_done = 0
+	return function() {
+		things_done++
+		if (number_of_things_to_do === things_done) {
+			callback()
+		}
+	}
+}
+
+// And this is the thing that happens once all the async stuff is done
+var finisher = function() {
+	console.log("ALL DONE!")
+}
+
+// So, you can just do this
+var things_to_work_on = ['what', 'what', 'in', 'the', 'butt']
+var thingFinished = callThisWhenTheThingsAreDone(finisher, things_to_work_on.length)
+
+things_to_work_on.forEach(function(thing) {
+	doAsyncThing(thing, function(result) {
+		console.log("I got back " + result)
+		thingFinished()
+	})
+})
+
+
+// ===== the actual code is below
+
 var fs = require('fs')
 var request = require('request')
 var us = require('underscore')
@@ -254,7 +318,12 @@ var createFiles = function(blog) {
 	us.map(blog.posts, function(post) {
 		if (post.is_attachment) {
 			console.log("Downloading: " + post.attachment_url)
-			console.log(request(post.attachment_url))
+			request(post.attachment_url, function(error, response, body) {
+				if (!error && response.statusCode == 200) {
+					console.log("Saving " + post.folder + post.fileName)
+					zip.file(post.folder + post.fileName, body)
+				}
+			})
 			// zip.file(post.folder + post.fileName, request(post.attachment_url), {base64:true})
 		} else {
 			// create the string that goes into the file
