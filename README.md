@@ -18,6 +18,8 @@ Alternate install
 
 Instead of step 3 above, since this isn't on npm yet, install using
 
-	`npm install https://github.com/saibotsivad/noddity-wordpress-export/archive/master.tar.gz`
+	npm install https://github.com/saibotsivad/noddity-wordpress-export/archive/master.tar.gz
 
-You'll have to `cd node_modules/noddity-wordpress-export` and then continue with the rest of the steps.
+Then you can do this for step 4:
+
+	node ./node_modules/noddity-wordpress-export/noddity-wordpress-export.js /path/to/export.xml
