@@ -7,8 +7,8 @@ var toMarkdown = require('to-markdown').toMarkdown
 var postFilter = require('./post-filter.js')
 
 if (process.argv[2] === undefined) {
-	console.log("Usage: node [app] [xml file]")
-	console.log("E.g., node wordpress-export.js ./export.xml")
+	console.log("Usage: noddity-wordpress-export [xml file]")
+	console.log("E.g., noddity-wordpress-export ./export.xml")
 	return
 }
 

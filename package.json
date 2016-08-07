@@ -1,7 +1,7 @@
 {
   "name": "noddity-wordpress-export",
   "version": "0.1.1",
-  "main": "./noddity-wordpress-export.js",
+  "bin": "./noddity-wordpress-export.js",
   "author": {
     "name": "Tobias Davis",
     "email": "public@davistobias.com",
