@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var fs = require('fs')
 var us = require('underscore')
 var xml2js = require('xml2js')
