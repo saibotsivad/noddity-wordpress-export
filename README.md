@@ -1,5 +1,7 @@
 # noddity-wordpress-export
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/saibotsivad/noddity-wordpress-export.svg)](https://greenkeeper.io/)
+
 Exporting all your WordPress posts to Markdown with metadata.
 
 Steps to success:
